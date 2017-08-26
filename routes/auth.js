@@ -7,6 +7,6 @@ router.get('/', (req, res) => {
 });
 router.get('/twitter', passport.authenticate('twitter'));
 router.get('/twitter/callback',
-  passport.authenticate('twitter', { failureRedirect: '/auth' }), (req, res) => { res.redirect('/'); });
+  passport.authenticate('twitter', { failureRedirect: '/auth' }), (req, res) => { res.redirect('/user'); });
 
 module.exports = router;

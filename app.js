@@ -11,15 +11,26 @@ const TwitterStrategy = require('passport-twitter').Strategy;
 
 const config = require('./config');
 const redisStore = new RedisStore(config.RedisOption);
+const db = require('./models');
 
 passport.serializeUser((user, done) => { done(null, user); });
 passport.deserializeUser((obj, done) => { done(null, obj); });
-passport.use(new TwitterStrategy(config.PassportOption, (token, token_secret, profile, done) => {
-  done(null, { id: profile.id });
+passport.use(new TwitterStrategy(config.PassportOption, (twitterToken, twitterTokenSecret, profile, done) => {
+  db.User.findOrCreate({
+    where: { id: profile.id },
+    defaults: {
+      twitterToken,
+      twitterTokenSecret,
+      notificationTime: 22,
+      mentionTarget: profile.username
+    }
+  }).then(u => {
+    done(null, { id: profile.id });
+  });
 }));
 
 const index = require('./routes/index');
-const users = require('./routes/users');
+const user = require('./routes/user');
 const auth = require('./routes/auth');
 
 const app = express();
@@ -49,7 +60,7 @@ app.use('/', (req, res, next) => {
   if (!req.user) { return res.redirect('/auth'); }
   next();
 }, index);
-app.use('/users', users);
+app.use('/user', user);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
