@@ -32,14 +32,11 @@ passport.use(new TwitterStrategy(config.PassportOption, (req, twitterToken, twit
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 passport.use(new GoogleStrategy(config.GoogleOption,
   (req, accessToken, refreshToken, profile, cb) => {
-    db.GoogleCredential.findOrCreate({
-      where: { userId: req.session.passport.user.id },
-      defaults: {
-        id: profile.id,
-        userId: req.session.passport.user.id,
-        googleToken: accessToken,
-        googleRefreshToken: refreshToken
-      }
+    db.GoogleCredential.upsert({
+      id: profile.id,
+      userId: req.session.passport.user.id,
+      googleToken: accessToken,
+      googleRefreshToken: refreshToken
     }).then(g => {
       cb(null, Object.assign({}, req.session.passport.user, { googleId: profile.id }));
     });
