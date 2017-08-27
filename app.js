@@ -15,7 +15,7 @@ const db = require('./models');
 
 passport.serializeUser((user, done) => { done(null, user); });
 passport.deserializeUser((obj, done) => { done(null, obj); });
-passport.use(new TwitterStrategy(config.PassportOption, (twitterToken, twitterTokenSecret, profile, done) => {
+passport.use(new TwitterStrategy(config.PassportOption, (req, twitterToken, twitterTokenSecret, profile, done) => {
   db.User.findOrCreate({
     where: { id: profile.id },
     defaults: {
@@ -26,8 +26,17 @@ passport.use(new TwitterStrategy(config.PassportOption, (twitterToken, twitterTo
     }
   }).then(u => {
     done(null, { id: profile.id });
-  });
+  }).catch(err => { done(err); });
 }));
+
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+passport.use(new GoogleStrategy(config.GoogleOption,
+  (req, accessToken, refreshToken, profile, cb) => {
+    // db.User.findOrCreate({ googleId: profile.id });
+    cb(null, Object.assign({}, req.session.passport.user, { googleId: profile.id }));
+  }
+));
+
 
 const index = require('./routes/index');
 const user = require('./routes/user');
