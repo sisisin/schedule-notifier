@@ -14,7 +14,12 @@ async function main() {
   const processes = rows.map(async ({ twitterToken, twitterTokenSecret, mentionTarget, googleToken, googleRefreshToken }) => {
     const result = await listEvents(googleToken, googleRefreshToken);
     const targetSchedule = result.items
-      .filter(item => item.attendees.find(attendee => attendee.self && attendee.responseStatus !== 'declined'))[0];
+      .filter(item => {
+        if (item.creator && item.creator.self) { return true; }
+        if (item.organizer && item.organizer.self) { return true; }
+        if (item.attendees && item.attendees.find(attendee => attendee.self && attendee.responseStatus !== 'declined')) { return true; }
+        return false;
+      })[0];
     await tweet({ twitterToken, twitterTokenSecret, targetSchedule, mentionTarget })
     return result;
   });
