@@ -9,7 +9,7 @@ router.get('/twitter', passport.authenticate('twitter'));
 router.get(
   '/twitter/callback',
   passport.authenticate('twitter', { failureRedirect: '/auth' }),
-  (req, res) => { res.redirect('/user'); });
+  (req, res) => { res.redirect('/'); });
 
 router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'https://www.googleapis.com/auth/calendar.readonly'],
@@ -19,6 +19,6 @@ router.get('/google', passport.authenticate('google', {
 router.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth' }),
-  (req, res) => { res.redirect('/user'); });
+  (req, res) => { res.redirect('/'); });
 
 module.exports = router;

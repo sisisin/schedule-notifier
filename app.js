@@ -5,47 +5,11 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
-const passport = require('passport');
-const TwitterStrategy = require('passport-twitter').Strategy;
 
-const config = require('./config');
-const redisStore = new RedisStore(config.RedisOption);
-const db = require('./models');
-
-passport.serializeUser((user, done) => { done(null, user); });
-passport.deserializeUser((obj, done) => { done(null, obj); });
-passport.use(new TwitterStrategy(config.PassportOption, (req, twitterToken, twitterTokenSecret, profile, done) => {
-  db.User.findOrCreate({
-    where: { id: profile.id },
-    defaults: {
-      twitterToken,
-      twitterTokenSecret,
-      notificationTime: 22,
-      mentionTarget: profile.username
-    }
-  }).then(u => {
-    done(null, { id: profile.id });
-  }).catch(err => { done(err); });
-}));
-
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-passport.use(new GoogleStrategy(config.GoogleOption,
-  (req, accessToken, refreshToken, profile, cb) => {
-    db.GoogleCredential.upsert({
-      id: profile.id,
-      userId: req.session.passport.user.id,
-      googleToken: accessToken,
-      googleRefreshToken: refreshToken
-    }).then(g => {
-      cb(null, Object.assign({}, req.session.passport.user, { googleId: profile.id }));
-    });
-  }
-));
-
+const passport = require('./middlewares/passport');
+const redisStore = require('./middlewares/redis');
 
 const index = require('./routes/index');
-const user = require('./routes/user');
 const auth = require('./routes/auth');
 
 const app = express();
@@ -75,7 +39,6 @@ app.use('/', (req, res, next) => {
   if (!req.user) { return res.redirect('/auth'); }
   next();
 }, index);
-app.use('/user', user);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
