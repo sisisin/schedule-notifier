@@ -1,8 +1,6 @@
 const db = require('../models');
-const google = require('googleapis');
-const config = require('../config.js');
-const Twit = require('twit');
-const { clientID, clientSecret, callbackURL } = config.GoogleOption;
+const TwitterClientFactory = require('../common/twitter-client-factory').TwitterClientFactory;
+const GoogleClientFactory = require('../common/google-client-factory').GoogleClientFactory;
 
 async function main() {
   const targetHour = new Date;
@@ -12,7 +10,7 @@ async function main() {
   db.sequelize.close();
 
   const processes = rows.map(async ({ twitterToken, twitterTokenSecret, mentionTarget, googleToken, googleRefreshToken }) => {
-    const result = await listEvents(googleToken, googleRefreshToken);
+    const result = await GoogleClientFactory.create({ googleToken, googleRefreshToken }).listEvents();
     const targetSchedule = result.items
       .filter(item => {
         if (item.creator && item.creator.self) { return true; }
@@ -20,50 +18,11 @@ async function main() {
         if (item.attendees && item.attendees.find(attendee => attendee.self && attendee.responseStatus !== 'declined')) { return true; }
         return false;
       })[0];
-    await tweet({ twitterToken, twitterTokenSecret, targetSchedule, mentionTarget })
-    return result;
+
+    return await TwitterClientFactory.create({ twitterToken, twitterTokenSecret }).tweet({ targetSchedule, mentionTarget });
   });
 
   return await Promise.all(processes);
-}
-
-async function tweet({ twitterToken, twitterTokenSecret, targetSchedule, mentionTarget }) {
-  const t = new Twit({
-    consumer_key: config.twitterOption.consumerKey,
-    consumer_secret: config.twitterOption.consumerSecret,
-    access_token: twitterToken,
-    access_token_secret: twitterTokenSecret
-  });
-  const dt = new Date(targetSchedule.start.dateTime);
-  await t.post('statuses/update', { status: `@${mentionTarget} 明日の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始だょ` });
-}
-
-async function listEvents(googleToken, googleRefreshToken) {
-  const oauth2Client = new google.auth.OAuth2(clientID, clientSecret, callbackURL);
-  oauth2Client.setCredentials({
-    access_token: googleToken,
-    refresh_token: googleRefreshToken
-  });
-
-  const now = new Date;
-  const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
-
-  const cfg = {
-    auth: oauth2Client,
-    calendarId: 'primary',
-    orderBy: 'startTime',
-    singleEvents: true,
-    timeMax: nextDay.toISOString(),
-    timeMin: targetDate.toISOString(),
-  };
-
-  return new Promise((resolve, reject) => {
-    google.calendar('v3').events.list(cfg, (err, res) => {
-      if (err) { return reject(err); }
-      resolve(res);
-    });
-  });
 }
 
 main().catch(e => console.log(e));
