@@ -1,6 +1,6 @@
 const google = require('googleapis');
 const config = require('../config.js');
-const { clientID, clientSecret, callbackURL } = config.GoogleOption;
+const { clientID, clientSecret, callbackURL } = config.googleOption;
 
 const GoogleClientFactory = {
   create({ googleToken, googleRefreshToken }) {

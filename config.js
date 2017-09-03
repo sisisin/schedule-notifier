@@ -16,10 +16,10 @@ const twitterOption = {
 };
 
 const googleCallbackPath = '/auth/google/callback';
-const GoogleOption = {
+const googleOption = {
   clientID: process.env.SCHEDULE_NOTIFIER_GOOGLE_CLIENT_ID,
   clientSecret: process.env.SCHEDULE_NOTIFIER_GOOGLE_CLIENT_SECRET,
   callbackURL: isProd ? `https://schedule-notifier.herokuapp.com${googleCallbackPath}` : `http://localhost:3000${googleCallbackPath}`,
   passReqToCallback: true
 };
-module.exports = { twitterOption, redisOption, GoogleOption };
+module.exports = { twitterOption, redisOption, googleOption };

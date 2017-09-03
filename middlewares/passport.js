@@ -21,7 +21,7 @@ passport.use(new TwitterStrategy(config.twitterOption, (req, twitterToken, twitt
 }));
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-passport.use(new GoogleStrategy(config.GoogleOption,
+passport.use(new GoogleStrategy(config.googleOption,
   (req, accessToken, refreshToken, profile, cb) => {
     db.GoogleCredential.upsert({
       id: profile.id,
