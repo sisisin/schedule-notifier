@@ -8,8 +8,8 @@ router.get('/', async (req, res, next) => {
   const u = await db.User.findById(req.session.passport.user.id);
   const { id, notificationTime, twitterToken, twitterTokenSecret } = u.toJSON();
   const t = new Twit({
-    consumer_key: config.PassportOption.consumerKey,
-    consumer_secret: config.PassportOption.consumerSecret,
+    consumer_key: config.twitterOption.consumerKey,
+    consumer_secret: config.twitterOption.consumerSecret,
     access_token: twitterToken,
     access_token_secret: twitterTokenSecret
   });
