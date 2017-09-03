@@ -45,7 +45,6 @@ passport.use(new GoogleStrategy(config.GoogleOption,
 
 
 const index = require('./routes/index');
-const user = require('./routes/user');
 const auth = require('./routes/auth');
 
 const app = express();
@@ -75,7 +74,6 @@ app.use('/', (req, res, next) => {
   if (!req.user) { return res.redirect('/auth'); }
   next();
 }, index);
-app.use('/user', user);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
