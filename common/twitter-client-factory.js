@@ -31,7 +31,7 @@ class TwitterClient {
 
   async tweet({ targetSchedule, mentionTarget }) {
     const dt = new Date(targetSchedule.start.dateTime);
-    return this._updateStatuses({ status: `@${mentionTarget} 明日の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始ですよ` });
+    return this._updateStatuses({ status: `@${mentionTarget} ${dt.getMonth() + 1}/${dt.getDate()}の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始ですよ` });
   }
 }
 
