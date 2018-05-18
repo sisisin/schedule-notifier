@@ -1,14 +1,21 @@
-module.exports = {
-  getTargetDate() { return base(process.argv[2]); },
-  getTargetTime() { return base(process.argv[3]); }
-}
+const commandLineArgs = require('command-line-args');
 
-function base(arg) {
-  if (arg) {
-    const t = new Date(arg)
-    if (t.toString() === 'Invalid Date') { throw new Error('Invalid arguments'); }
-    return t;
-  } else {
-    return new Date;
-  }
+const optionDefinitions = [
+  { name: 'targetDate', alias: 'd', type: String },
+  { name: 'targetHour', alias: 'h', type: Number },
+];
+
+const options = commandLineArgs(optionDefinitions);
+
+module.exports = {
+  getTargetDate() {
+    if (options.targetDate) {
+      const t = new Date(options.targetDate)
+      if (t.toString() === 'Invalid Date') { throw new Error('Invalid arguments'); }
+      return t;
+    } else {
+      return new Date;
+    }
+  },
+  getTargetHour() { return options.targetHour ? options.targetHour : new Date().getHours(); }
 }

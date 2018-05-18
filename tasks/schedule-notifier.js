@@ -1,11 +1,11 @@
 const db = require('../models');
 const TwitterClientFactory = require('../common/twitter-client-factory').TwitterClientFactory;
 const GoogleClientFactory = require('../common/google-client-factory').GoogleClientFactory;
-const { getTargetDate, getTargetTime } = require('../common/get-target-date');
+const { getTargetDate, getTargetHour } = require('../common/get-target-date');
 
 async function main() {
   const targetDate = getTargetDate()
-  const rows = await findNotificationUserList(getTargetTime());
+  const rows = await findNotificationUserList(getTargetHour());
   const processes = rows.map(async ({ twitterToken, twitterTokenSecret, mentionTarget, googleToken, googleRefreshToken }) => {
     const result = await GoogleClientFactory.create({ googleToken, googleRefreshToken }).listEvents();
     const targetSchedule = result.items
@@ -31,10 +31,10 @@ async function main() {
   return await Promise.all(processes);
 }
 
-async function findNotificationUserList(targetDate) {
+async function findNotificationUserList(targetHour) {
   const [rows, _] = await db.sequelize.query(`select * from "Users" u
     inner join "GoogleCredentials" g on u.id = g."userId"
-    where "notificationTime"=${targetDate.getHours()}`);
+    where "notificationTime"=${targetHour}`);
   db.sequelize.close();
   return rows;
 }

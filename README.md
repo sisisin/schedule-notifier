@@ -9,5 +9,5 @@ twitterとgoogleでOAuth認証しておくと次の日の最初の予定を毎�
 # local testing
 
 ```console
-$ NODE_ENV=development npm run task-schedule-notifier -- "2018/5/24" "2018/5/24 14:00"
+$ NODE_ENV=development npm run task-schedule-notifier -- -d 2018-4-24 -h 14
 ```
