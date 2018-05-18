@@ -1,4 +1,5 @@
 const Twit = require('twit');
+const { getTargetDate } = require('./get-target-date');
 const config = require('../config');
 
 const TwitterClientFactory = {
@@ -24,14 +25,22 @@ class TwitterClient {
 
   async _updateStatuses({ status }) {
     return this.t.post('statuses/update', { status }).then(res => {
-      if (res.data && res.data.errors.length > 0) { throw new Error(JSON.stringify(res.data.errors)); }
+      if (res.data && res.data.errors && res.data.errors.length > 0) { throw new Error(JSON.stringify(res.data.errors)); }
       return res;
     });
   }
 
   async tweet({ targetSchedule, mentionTarget }) {
-    const dt = new Date(targetSchedule.start.dateTime);
-    return this._updateStatuses({ status: `@${mentionTarget} ${dt.getMonth() + 1}/${dt.getDate()}の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始ですよ` });
+    const targetDate = getTargetDate();
+    targetDate.setDate(targetDate.getDate() + 1);
+    const targetTime = new Date(targetSchedule.start.dateTime);
+    const message = `@${mentionTarget} ${targetDate.getMonth() + 1}/${targetDate.getDate()}の最初の予定は${targetTime.getHours()}時${targetTime.getMinutes()}分開始ですよ`;
+    if (process.env.NODE_ENV === 'development') {
+      console.log(message);
+      return;
+    } else {
+      return this._updateStatuses({ status: message });
+    }
   }
 }
 
