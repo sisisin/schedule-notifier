@@ -21,17 +21,18 @@ class GoogleClient {
   }
 
   async listEvents() {
-    const now = new Date;
-    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+    const targetDate = new Date;
+    targetDate.setDate(targetDate.getDate() + 1);
+    const nextTargetDate = new Date;
+    nextTargetDate.setDate(nextTargetDate.getDate() + 2);
 
     const cfg = {
       auth: this.auth,
       calendarId: 'primary',
       orderBy: 'startTime',
       singleEvents: true,
-      timeMax: nextDay.toISOString(),
       timeMin: targetDate.toISOString(),
+      timeMax: nextTargetDate.toISOString(),
     };
 
     return new Promise((resolve, reject) => {
