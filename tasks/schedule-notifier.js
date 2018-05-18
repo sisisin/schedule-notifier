@@ -1,9 +1,10 @@
 const db = require('../models');
 const TwitterClientFactory = require('../common/twitter-client-factory').TwitterClientFactory;
 const GoogleClientFactory = require('../common/google-client-factory').GoogleClientFactory;
+const getTargetDate = require('../common/get-target-date');
 
 async function main() {
-  const targetHour = new Date;
+  const targetHour = getTargetDate();
   const [rows, _] = await db.sequelize.query(`select * from "Users" u
     inner join "GoogleCredentials" g on u.id = g."userId"
     where "notificationTime"=${targetHour.getHours()}`);

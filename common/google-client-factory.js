@@ -1,4 +1,5 @@
 const google = require('googleapis');
+const getTargetDate = require('./get-target-date');
 const config = require('../config.js');
 const { clientID, clientSecret, callbackURL } = config.googleOption;
 
@@ -21,18 +22,18 @@ class GoogleClient {
   }
 
   async listEvents() {
-    const targetDate = new Date;
-    targetDate.setDate(targetDate.getDate() + 1);
-    const nextTargetDate = new Date;
-    nextTargetDate.setDate(nextTargetDate.getDate() + 2);
+    const timeMin = getTargetDate();
+    timeMin.setDate(timeMin.getDate() + 1);
+    const timeMax = getTargetDate();
+    timeMax.setDate(timeMax.getDate() + 2);
 
     const cfg = {
       auth: this.auth,
       calendarId: 'primary',
       orderBy: 'startTime',
       singleEvents: true,
-      timeMin: targetDate.toISOString(),
-      timeMax: nextTargetDate.toISOString(),
+      timeMin: timeMin.toISOString(),
+      timeMax: timeMax.toISOString(),
     };
 
     return new Promise((resolve, reject) => {

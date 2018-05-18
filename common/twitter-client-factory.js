@@ -31,7 +31,13 @@ class TwitterClient {
 
   async tweet({ targetSchedule, mentionTarget }) {
     const dt = new Date(targetSchedule.start.dateTime);
-    return this._updateStatuses({ status: `@${mentionTarget} ${dt.getMonth() + 1}/${dt.getDate()}の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始ですよ` });
+    const message = `@${mentionTarget} ${dt.getMonth() + 1}/${dt.getDate()}の最初の予定は${dt.getHours()}時${dt.getMinutes()}分開始ですよ`;
+    if (process.env.NODE_ENV === 'development') {
+      console.log(message);
+      return;
+    } else {
+      return this._updateStatuses({ status: message });
+    }
   }
 }
 
