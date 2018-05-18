@@ -1,5 +1,5 @@
 const google = require('googleapis');
-const getTargetDate = require('./get-target-date');
+const { getTargetDate } = require('./get-target-date');
 const config = require('../config.js');
 const { clientID, clientSecret, callbackURL } = config.googleOption;
 
@@ -30,8 +30,7 @@ class GoogleClient {
     const cfg = {
       auth: this.auth,
       calendarId: 'primary',
-      orderBy: 'startTime',
-      singleEvents: true,
+      singleEvents: false,
       timeMin: timeMin.toISOString(),
       timeMax: timeMax.toISOString(),
     };
